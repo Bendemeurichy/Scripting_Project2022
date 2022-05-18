@@ -9,7 +9,8 @@ from Errors import Errorobj
 parameters = cgi.FieldStorage()
 lang = str(parameters.getvalue("lang"))
 stop = str(parameters.getvalue("stop"))
-
+# lang = "en"
+# stop = "Philosophy"
 paths = []
 error = Errorobj()
 
@@ -22,20 +23,20 @@ def nextlink(pagetitle, er: Errorobj):
         er.setError(True)
         er.setMessage("Verbinding mislukt")
 
-    soup = BeautifulSoup(page.content, 'html.parser')
+    fsoup = BeautifulSoup(page.content, 'html.parser')
+    changed = re.sub("\)", "</haakjes>", re.sub("\(", "<haakjes>", str(fsoup)))
+    soup = BeautifulSoup(changed, 'html.parser')
     title = soup.find(id="firstHeading").text
-    print(title)
+
     textblock = soup.find(id='bodyContent')
     all_par = textblock.find_all("p")
-    all_links = [a for p in all_par for a in (p.find_all("a",href=True))]
-    text = re.sub("\(.*?\)", "", str(textblock))
+    all_links = [a for p in all_par for a in
+                 (p.find_all(lambda k: k.name == "a" and not k.find_parent("haakjes")))]
+
     scrapelink = ""
     for link in all_links:
-        regex = re.compile(re.sub("\(.*?\)","",str(link)))
 
-
-        if link['href'].find("/wiki/") != -1 and link["href"].find(":") == -1 \
-                and regex.search(text):
+        if link['href'].find("/wiki/") != -1 and link["href"].find(":") == -1:
             scrapelink = link
             break
 
@@ -47,11 +48,11 @@ def nextlink(pagetitle, er: Errorobj):
         er.setMessage("lus gevonden zonder eindpunt te passeren")
     else:
         paths.append(title)
-        return str(scrapelink["title"])
+        return re.sub("</haakjes>", ")", (re.sub("<haakjes>", "(", str(scrapelink["title"]))))
 
 
 modlink = nextlink(parameters.getvalue("start"), error)
-
+# modlink = nextlink("Ghent University", error)
 while modlink != stop and not error.getError():
     modlink = nextlink(modlink, error)
 
