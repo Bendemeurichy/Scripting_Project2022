@@ -9,8 +9,7 @@ from Errors import Errorobj
 parameters = cgi.FieldStorage()
 lang = str(parameters.getvalue("lang"))
 stop = str(parameters.getvalue("stop"))
-#lang="nl"
-#stop="Kennis"
+
 paths = []
 error = Errorobj()
 
@@ -25,15 +24,18 @@ def nextlink(pagetitle, er: Errorobj):
 
     soup = BeautifulSoup(page.content, 'html.parser')
     title = soup.find(id="firstHeading").text
+    print(title)
     textblock = soup.find(id='bodyContent')
     all_par = textblock.find_all("p")
-    all_links = [a for p in all_par for a in (p.find_all("a"))]
-
+    all_links = [a for p in all_par for a in (p.find_all("a",href=True))]
+    text = re.sub("\(.*?\)", "", str(textblock))
     scrapelink = ""
     for link in all_links:
-        regex = re.compile(f"\([^()]*{link}[^()]*\)")
+        regex = re.compile(re.sub("\(.*?\)","",str(link)))
+
+
         if link['href'].find("/wiki/") != -1 and link["href"].find(":") == -1 \
-                and not regex.search(str(textblock)):
+                and regex.search(text):
             scrapelink = link
             break
 
@@ -49,7 +51,7 @@ def nextlink(pagetitle, er: Errorobj):
 
 
 modlink = nextlink(parameters.getvalue("start"), error)
-#modlink = nextlink("Universiteit_Gent", error)
+
 while modlink != stop and not error.getError():
     modlink = nextlink(modlink, error)
 
