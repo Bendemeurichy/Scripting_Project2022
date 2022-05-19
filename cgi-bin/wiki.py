@@ -10,8 +10,7 @@ parameters = cgi.FieldStorage()
 lang = parameters.getvalue("lang")
 stop = parameters.getvalue("stop")
 old = parameters.getvalue("old")
-# lang = "en"
-# stop = "Philosophy"
+
 paths = []
 error = Errorobj()
 
@@ -54,17 +53,16 @@ def nextlink(pagetitle, er: Errorobj):
 
 
 modlink = nextlink(parameters.getvalue("start"), error)
-# modlink = nextlink("Ghent University", error)
 while not error.getError() and modlink not in old:
     modlink = nextlink(modlink, error)
 
-parent=modlink
+parent = modlink
 paths.reverse()
 
 if error.getError():
     new_paths = {"error": error.getMessage()}
 else:
-    new_paths = {"paths": paths,"parent":parent}
+    new_paths = {"paths": paths, "parent": parent}
 
 print("Content-Type: application/json")
 print()  # Lege lijn na headers

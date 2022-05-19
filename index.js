@@ -30,14 +30,11 @@ function getinfo(lang, start, stop) {
 
 function maketree(parent,addarray){
     if(addarray.length===1) {
-        console.log(addarray)
-        console.log(parent)
         let el = addarray.shift();
         let par = `#${parent}`;
         $(par).append(`<li>${el}</li><ul id=${el}></ul>`);
     } else {
-        console.log(addarray)
-        console.log(parent)
+
         let el = addarray.shift();
         let par = document.getElementById(parent)
         $(par).append(`<li>${el}</li><ul id="${el}"></ul>`);
