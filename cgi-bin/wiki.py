@@ -9,7 +9,7 @@ from Errors import Errorobj
 parameters = cgi.FieldStorage()
 lang = parameters.getvalue("lang")
 stop = parameters.getvalue("stop")
-old = parameters.getvalue("old")
+old = json.loads(parameters.getvalue("old"))
 
 paths = []
 error = Errorobj()
