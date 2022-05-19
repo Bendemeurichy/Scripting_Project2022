@@ -31,22 +31,21 @@ function getinfo(lang, start, stop) {
 function maketree(parent,addarray){
     if(addarray.length===1) {
         let el = addarray.shift();
-        let par = `#${parent}`;
-        $(par).append(`<li>${el}</li><ul id=${el}></ul>`);
+        let par = document.getElementById(parent);
+        $(par).append(`<li>${el}</li><ul id="${el}"></ul>`);
     } else {
 
         let el = addarray.shift();
-        let par = document.getElementById(parent)
+        let par = document.getElementById(parent);
         $(par).append(`<li>${el}</li><ul id="${el}"></ul>`);
-
         return maketree(el,addarray);
     }
 }
 
 knop.click( () => {
     const lang = document.querySelector("#taal").value || "en";
-    const start = document.querySelector("#start").value || "Special:Random";
-    const stop = eindveld.value || "Philosophy";
+    const start = document.querySelector("#start").value.replace(" ","_") || "Special:Random";
+    const stop = document.querySelector("#eindpunt").value.replace(" ","_") || "Philosophy";
     getinfo(lang, start, stop);
 });
 
