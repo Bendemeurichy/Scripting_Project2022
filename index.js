@@ -11,16 +11,12 @@ function getinfo(lang, start, stop) {
     const old = {lijst: huidigeLijst};
     fetch(`cgi-bin/wiki.py?old=${JSON.stringify(old)}&lang=${lang}&start=${start}&stop=${stop}`)
         .then(antwoord => antwoord.json()).then(inp.prop("disabled",true)).then(data => {
-        let html = "";
         if(data["paths"]===undefined){
             inp.prop("disabled",false);
             alert(data["error"])
         } else {
-            for(let item of data["paths"]){
-                html+=`<li>${item}</li>`
-            }
+
             inp.prop("disabled",false);
-            //$("#items").html(html);
             maketree(data["parent"],data["paths"])
         }
 
