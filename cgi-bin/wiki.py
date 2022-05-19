@@ -10,7 +10,7 @@ parameters = cgi.FieldStorage()
 lang = parameters.getvalue("lang")
 stop = parameters.getvalue("stop")
 old = json.loads(parameters.getvalue("old"))
-
+old = old["lijst"]
 paths = []
 error = Errorobj()
 
@@ -41,7 +41,7 @@ def nextlink(pagetitle, er: Errorobj):
             scrapelink = link
             break
 
-    if scrapelink == '':
+    if scrapelink == "":
         er.setError(True)
         er.setMessage("geen links gevonden")
     elif scrapelink["title"] in paths:
@@ -56,7 +56,7 @@ modlink = nextlink(parameters.getvalue("start"), error)
 while not error.getError() and modlink not in old:
     modlink = nextlink(modlink, error)
 
-parent = modlink
+parent = str(modlink)
 paths.reverse()
 
 if error.getError():

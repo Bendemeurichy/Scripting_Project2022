@@ -57,3 +57,4 @@ eindveld.on("input",null,null,()=>{
 $("#taal").on("input",null,null,()=>{
     $("#items").html(`<li>${eindveld.val()||"Philosophy"}</li><ul id=${eindveld.val()||"Philosophy"}></ul>`);
 });
+
