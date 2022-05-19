@@ -7,8 +7,9 @@ import re
 from Errors import Errorobj
 
 parameters = cgi.FieldStorage()
-lang = str(parameters.getvalue("lang"))
-stop = str(parameters.getvalue("stop"))
+lang = parameters.getvalue("lang")
+stop = parameters.getvalue("stop")
+old = parameters.getvalue("old")
 # lang = "en"
 # stop = "Philosophy"
 paths = []
@@ -19,9 +20,10 @@ def nextlink(pagetitle, er: Errorobj):
     newlink = f"https://{lang}.wikipedia.org/wiki/" + pagetitle
     try:
         page = r.get(url=newlink)
-    except r.ConnectionError:
+    except r.RequestException or r.ConnectionError or r.ConnectTimeout:
         er.setError(True)
         er.setMessage("Verbinding mislukt")
+        return None
 
     fsoup = BeautifulSoup(page.content, 'html.parser')
     changed = re.sub("\)", "</haakjes>", re.sub("\(", "<haakjes>", str(fsoup)))
@@ -45,7 +47,7 @@ def nextlink(pagetitle, er: Errorobj):
         er.setMessage("geen links gevonden")
     elif scrapelink["title"] in paths:
         er.setError(True)
-        er.setMessage("lus gevonden zonder eindpunt te passeren")
+        er.setMessage(f"lus gevonden bij {scrapelink['title']} zonder eindpunt te passeren")
     else:
         paths.append(title)
         return re.sub("</haakjes>", ")", (re.sub("<haakjes>", "(", str(scrapelink["title"]))))
@@ -53,15 +55,16 @@ def nextlink(pagetitle, er: Errorobj):
 
 modlink = nextlink(parameters.getvalue("start"), error)
 # modlink = nextlink("Ghent University", error)
-while modlink != stop and not error.getError():
+while not error.getError() and modlink not in old:
     modlink = nextlink(modlink, error)
 
-paths.append(stop)
+parent=modlink
+paths.reverse()
 
 if error.getError():
     new_paths = {"error": error.getMessage()}
 else:
-    new_paths = {"paths": paths}
+    new_paths = {"paths": paths,"parent":parent}
 
 print("Content-Type: application/json")
 print()  # Lege lijn na headers

@@ -1,42 +1,62 @@
-const knop=document.querySelector("#toevoegKnop");
-const eindveld = document.querySelector("#eindpunt");
+const knop=$("#toevoegKnop");
+const eindveld = $("#eindpunt");
+const inp=$("#input :input");
 
 function getinfo(lang, start, stop) {
-    knop.disabled=true;
-    const items = document.querySelectorAll("#items li");
+    const items = $("#items li");
     const huidigeLijst = [];
     for (let item of items) {
         huidigeLijst.push(item.innerText);
     }
-    const data = {lijst: huidigeLijst};
-    fetch(`cgi-bin/wiki.py?lang=${lang}&start=${start}&stop=${stop}`)
-        .then(antwoord => antwoord.json()).then(knop.disabled=true).then(data => {
+    const old = {lijst: huidigeLijst};
+    fetch(`cgi-bin/wiki.py?old=${JSON.stringify(old)}&lang=${lang}&start=${start}&stop=${stop}`)
+        .then(antwoord => antwoord.json()).then(inp.prop("disabled",true)).then(data => {
         let html = "";
         if(data["paths"]===undefined){
-            
+            inp.prop("disabled",false);
             alert(data["error"])
         } else {
-            for (let item of data["paths"]) {
-                html += `<li>${item}</li>`;
+            for(let item of data["paths"]){
+                html+=`<li>${item}</li>`
             }
-            document.querySelector("#items").innerHTML = html;
+            inp.prop("disabled",false);
+            //$("#items").html(html);
+            maketree(data["parent"],data["paths"])
         }
-        knop.disabled = false
-    });
+
+    })
 
 }
 
-knop.addEventListener("click", () => {
+function maketree(parent,addarray){
+    if(addarray.length===1) {
+        console.log(addarray)
+        console.log(parent)
+        let el = addarray.shift();
+        let par = `#${parent}`;
+        $(par).append(`<li>${el}</li><ul id=${el}></ul>`);
+    } else {
+        console.log(addarray)
+        console.log(parent)
+        let el = addarray.shift();
+        let par = document.getElementById(parent)
+        $(par).append(`<li>${el}</li><ul id="${el}"></ul>`);
+
+        return maketree(el,addarray);
+    }
+}
+
+knop.click( () => {
     const lang = document.querySelector("#taal").value || "en";
     const start = document.querySelector("#start").value || "Special:Random";
     const stop = eindveld.value || "Philosophy";
     getinfo(lang, start, stop);
 });
 
-eindveld.addEventListener("input", ()=> {
-    document.querySelector("#items").innerHTML = `<li>${eindveld.value||"Philosophy"}</li>`;
+eindveld.on("input",null,null,()=>{
+    $("#items").html(`<li>${eindveld.val()||"Philosophy"}</li><ul id=${eindveld.val()||"Philosophy"}></ul>`);
 });
 
-document.querySelector("#taal").addEventListener("input",()=>{
-    document.querySelector("#items").innerHTML = `<li>${eindveld.value||"Philosophy"}</li>`;
+$("#taal").on("input",null,null,()=>{
+    $("#items").html(`<li>${eindveld.val()||"Philosophy"}</li><ul id=${eindveld.val()||"Philosophy"}></ul>`);
 });
