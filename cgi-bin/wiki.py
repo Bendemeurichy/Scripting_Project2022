@@ -25,18 +25,20 @@ def nextlink(pagetitle, er: Errorobj):
         return None
 
     fsoup = BeautifulSoup(page.content, 'html.parser')
+    #methode gevonden op stackoverflow maar vraag is verwijdert dus geen link
     changed = re.sub("\)", "</haakjes>", re.sub("\(", "<haakjes>", str(fsoup)))
     soup = BeautifulSoup(changed, 'html.parser')
     title = soup.find(id="firstHeading").text
 
     textblock = soup.find(id='bodyContent')
     all_par = textblock.find_all("p")
+    #vind flattened list van alle links
     all_links = [a for p in all_par for a in
                  (p.find_all(lambda k: k.name == "a" and not k.find_parent("haakjes")))]
 
     scrapelink = ""
     for link in all_links:
-
+    #check of link geen speciale wiki pagina
         if link['href'].find("/wiki/") != -1 and link["href"].find(":") == -1:
             scrapelink = link
             break

@@ -24,6 +24,7 @@ function getinfo(lang, start, stop) {
 
 }
 
+//recursieve functie om tree toe te voegen aan bestaande html
 function maketree(parent,addarray){
     if(addarray.length===1) {
         let el = addarray.shift();
